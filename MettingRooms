@@ -1,0 +1,1112 @@
+					
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Meeting Room System</title>
+<style>
+
+/* =========================
+   GENERAL
+========================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #111827;
+    color: white;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    background: #1f2937;
+    padding: 20px;
+    text-align: center;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 38px;
+}
+
+#clock {
+    margin-top: 10px;
+    font-size: 20px;
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.nav {
+    text-align: center;
+    padding: 15px;
+    background: #374151;
+}
+
+.nav button {
+    padding: 12px 25px;
+    margin: 5px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-tv {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-booking {
+    background: #16a34a;
+    color: white;
+}
+
+
+/* =========================
+   ROOM GRID
+========================= */
+
+.room-container {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 20px;
+
+    padding: 30px;
+}
+
+
+/* =========================
+   ROOM CARD
+========================= */
+
+.room {
+
+    min-height: 200px;
+
+    border-radius: 18px;
+
+    padding: 25px;
+
+    text-align: center;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    box-shadow:
+        0 5px 15px rgba(0,0,0,0.3);
+}
+
+
+/* KOSONG */
+
+.available {
+
+    background: #15803d;
+
+    border:
+        3px solid #22c55e;
+}
+
+
+/* DIPAKAI */
+
+.busy {
+
+    background: #b91c1c;
+
+    border:
+        3px solid #ef4444;
+}
+
+
+/* NAMA RUANGAN */
+
+.room-name {
+
+    font-size: 38px;
+
+    font-weight: bold;
+}
+
+
+/* STATUS */
+
+.status {
+
+    font-size: 25px;
+
+    font-weight: bold;
+
+    margin-top: 15px;
+}
+
+
+/* INFO */
+
+.info {
+
+    margin-top: 10px;
+
+    font-size: 18px;
+}
+
+
+/* BUTTON */
+
+.room button {
+
+    margin-top: 20px;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 16px;
+}
+
+
+/* =========================
+   BOOKING PANEL
+========================= */
+
+#bookingPanel {
+
+    display: none;
+
+    position: fixed;
+
+    top: 50%;
+
+    left: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    background: white;
+
+    color: black;
+
+    width: 400px;
+
+    padding: 30px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 10px 40px
+        rgba(0,0,0,0.5);
+
+    z-index: 100;
+}
+
+
+#bookingPanel h2 {
+
+    text-align: center;
+
+}
+
+
+#bookingPanel label {
+
+    display: block;
+
+    margin-top: 15px;
+
+}
+
+
+#bookingPanel input {
+
+    width: 100%;
+
+    padding: 10px;
+
+    margin-top: 5px;
+
+}
+
+
+#bookingPanel button {
+
+    width: 100%;
+
+    padding: 12px;
+
+    margin-top: 15px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+}
+
+
+.btn-save {
+
+    background: #16a34a;
+
+    color: white;
+}
+
+
+.btn-cancel {
+
+    background: #dc2626;
+
+    color: white;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+
+    text-align: center;
+
+    padding: 15px;
+
+    background: #1f2937;
+
+}
+
+
+/* =========================
+   TV MODE
+========================= */
+
+.tv-mode .nav {
+
+    display: none;
+}
+
+
+.tv-mode .room button {
+
+    display: none;
+}
+
+
+.tv-mode .header h1 {
+
+    font-size: 45px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:1000px) {
+
+    .room-container {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+}
+
+
+@media(max-width:600px) {
+
+    .room-container {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<div class="header">
+
+    <h1>
+        <p style="color: green;">PT HARDCORINDO SEMESTA JAYA
+    </h1>
+    
+    <h1>
+        MEETING ROOM AVAILABILITY
+    </h1>
+
+    <div id="clock">
+    </div>
+
+</div>
+
+
+<!-- =========================
+     NAVIGATION
+========================= -->
+
+<div class="nav">
+
+    <button
+        class="btn-tv"
+        onclick="tvMode()">
+
+        📺 TV LOBBY
+
+    </button>
+
+
+    <button
+        class="btn-booking"
+        onclick="showBooking()">
+
+        📅 BOOKING
+
+    </button>
+
+</div>
+
+
+<!-- =========================
+     ROOM
+========================= -->
+
+<div
+    id="roomContainer"
+    class="room-container">
+</div>
+
+
+<!-- =========================
+     BOOKING FORM
+========================= -->
+
+<div id="bookingPanel">
+
+    <h2>
+        BOOKING RUANGAN
+    </h2>
+
+
+    <label>
+        Pilih Ruangan
+    </label>
+
+    <select
+        id="roomSelect"
+        style="
+            width:100%;
+            padding:10px;
+        ">
+    </select>
+
+
+    <label>
+        Nama Pemesan
+    </label>
+
+    <input
+        type="text"
+        id="booker"
+        placeholder="Contoh: Nofa">
+
+
+    <label>
+        Waktu Mulai
+    </label>
+
+    <input
+        type="datetime-local"
+        id="startTime">
+
+
+    <label>
+        Waktu Selesai
+    </label>
+
+    <input
+        type="datetime-local"
+        id="endTime">
+
+
+    <button
+        class="btn-save"
+        onclick="saveBooking()">
+
+        💾 SIMPAN BOOKING
+
+    </button>
+
+
+    <button
+        class="btn-cancel"
+        onclick="closeBooking()">
+
+        ❌ BATAL
+
+    </button>
+
+</div>
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<div class="footer">
+    Meeting Room Management System
+</div>
+<div class="footer">
+    By Nofa Nurwachid
+</div>
+
+
+<script>
+
+/* =================================
+   DATA RUANGAN
+================================= */
+
+const rooms = [
+
+    {
+        id: 1,
+        name: "RUANGAN FRIENDSHIP"
+    },
+
+    {
+        id: 2,
+        name: "RUANGAN CLOUDSEVEN"
+    },
+
+    {
+        id: 3,
+        name: "RUANGAN AULA OFFICE"
+    },
+
+    {
+        id: 4,
+        name: "RUANGAN MEETING OFFICE"
+    },
+
+    {
+        id: 5,
+        name: "RUANGAN AULA TRAPESIUM "
+    },
+
+    {
+        id: 6,
+        name: "RUANGAN MEETING TRAPESIUM"
+    },
+
+    {
+        id: 7,
+        name: "RUANGAN MEETING Lt 2 PRODUKSI"
+    },
+
+    {
+        id: 8,
+        name: "RUANGAN TRAINING Lt 4"
+    }
+
+];
+
+
+/* =================================
+   LOAD BOOKING
+================================= */
+
+let bookings =
+    JSON.parse(
+        localStorage.getItem(
+            "meetingBookings"
+        )
+    ) || [];
+
+
+/* =================================
+   TAMPILKAN RUANGAN
+================================= */
+
+function displayRooms() {
+
+    const container =
+        document.getElementById(
+            "roomContainer"
+        );
+
+    container.innerHTML = "";
+
+
+    const now =
+        new Date();
+
+
+    rooms.forEach(room => {
+
+
+        /*
+         * Cari booking yang
+         * sedang aktif
+         */
+
+        const booking =
+            bookings.find(item =>
+
+                item.roomId === room.id &&
+
+                new Date(item.start) <= now &&
+
+                new Date(item.end) > now
+
+            );
+
+
+        const card =
+            document.createElement(
+                "div"
+            );
+
+
+        if (booking) {
+
+
+            /*
+             * RUANGAN DIPAKAI
+             */
+
+            card.className =
+                "room busy";
+
+
+            card.innerHTML = `
+
+                <div class="room-name">
+
+                    ${room.name}
+
+                </div>
+
+
+                <div class="status">
+
+                    🔴 DIPAKAI
+
+                </div>
+
+
+                <div class="info">
+
+                    👤 ${booking.booker}
+
+                </div>
+
+
+                <div class="info">
+
+                    ⏰
+                    ${formatTime(booking.start)}
+                    -
+                    ${formatTime(booking.end)}
+
+                </div>
+
+
+                <button
+                    onclick="
+                        finishBooking(${booking.id})
+                    ">
+
+                    SELESAI
+
+                </button>
+
+            `;
+
+
+        } else {
+
+
+            /*
+             * RUANGAN KOSONG
+             */
+
+            card.className =
+                "room available";
+
+
+            card.innerHTML = `
+
+                <div class="room-name">
+
+                    ${room.name}
+
+                </div>
+
+
+                <div class="status">
+
+                    🟢 TERSEDIA
+
+                </div>
+
+
+                <div class="info">
+
+                    Ruangan dapat digunakan
+
+                </div>
+
+
+                <button
+                    onclick="
+                        quickBooking(${room.id})
+                    ">
+
+                    📅 BOOKING
+
+                </button>
+
+            `;
+
+        }
+
+
+        container.appendChild(card);
+
+    });
+
+}
+
+
+/* =================================
+   FORMAT JAM
+================================= */
+
+function formatTime(date) {
+
+    return new Date(date)
+        .toLocaleTimeString(
+            "id-ID",
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+
+}
+
+
+/* =================================
+   TAMPILKAN FORM BOOKING
+================================= */
+
+function showBooking() {
+
+    document.getElementById(
+        "bookingPanel"
+    ).style.display = "block";
+
+
+    const select =
+        document.getElementById(
+            "roomSelect"
+        );
+
+
+    select.innerHTML = "";
+
+
+    rooms.forEach(room => {
+
+        select.innerHTML += `
+
+            <option
+                value="${room.id}">
+
+                ${room.name}
+
+            </option>
+
+        `;
+
+    });
+
+}
+
+
+/* =================================
+   CLOSE FORM
+================================= */
+
+function closeBooking() {
+
+    document.getElementById(
+        "bookingPanel"
+    ).style.display = "none";
+
+}
+
+
+/* =================================
+   QUICK BOOKING
+================================= */
+
+function quickBooking(roomId) {
+
+    showBooking();
+
+    document.getElementById(
+        "roomSelect"
+    ).value = roomId;
+
+}
+
+
+/* =================================
+   SIMPAN BOOKING
+================================= */
+
+function saveBooking() {
+
+    const roomId =
+        Number(
+            document.getElementById(
+                "roomSelect"
+            ).value
+        );
+
+
+    const booker =
+        document.getElementById(
+            "booker"
+        ).value;
+
+
+    const start =
+        document.getElementById(
+            "startTime"
+        ).value;
+
+
+    const end =
+        document.getElementById(
+            "endTime"
+        ).value;
+
+
+    /*
+     * Validasi
+     */
+
+    if (
+        !booker ||
+        !start ||
+        !end
+    ) {
+
+        alert(
+            "Mohon lengkapi data booking!"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        new Date(end)
+        <=
+        new Date(start)
+    ) {
+
+        alert(
+            "Waktu selesai harus lebih besar!"
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Cek bentrok booking
+     */
+
+    const conflict =
+        bookings.some(item => {
+
+            if (
+                item.roomId !== roomId
+            ) {
+
+                return false;
+
+            }
+
+
+            const newStart =
+                new Date(start);
+
+            const newEnd =
+                new Date(end);
+
+            const oldStart =
+                new Date(item.start);
+
+            const oldEnd =
+                new Date(item.end);
+
+
+            return (
+                newStart < oldEnd &&
+                newEnd > oldStart
+            );
+
+        });
+
+
+    if (conflict) {
+
+        alert(
+            "❌ Ruangan sudah dibooking pada waktu tersebut!"
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Buat booking
+     */
+
+    const booking = {
+
+        id:
+            Date.now(),
+
+        roomId:
+            roomId,
+
+        booker:
+            booker,
+
+        start:
+            start,
+
+        end:
+            end
+
+    };
+
+
+    bookings.push(
+        booking
+    );
+
+
+    /*
+     * Simpan
+     */
+
+    localStorage.setItem(
+
+        "meetingBookings",
+
+        JSON.stringify(
+            bookings
+        )
+
+    );
+
+
+    alert(
+        "✅ Booking berhasil!"
+    );
+
+
+    closeBooking();
+
+
+    displayRooms();
+
+}
+
+
+/* =================================
+   SELESAI BOOKING
+================================= */
+
+function finishBooking(id) {
+
+    if (
+        confirm(
+            "Apakah meeting sudah selesai?"
+        )
+    ) {
+
+        bookings =
+            bookings.filter(
+                item =>
+                    item.id !== id
+            );
+
+
+        localStorage.setItem(
+
+            "meetingBookings",
+
+            JSON.stringify(
+                bookings
+            )
+
+        );
+
+
+        displayRooms();
+
+    }
+
+}
+
+
+/* =================================
+   TV MODE
+================================= */
+
+function tvMode() {
+
+    document.body.classList.toggle(
+        "tv-mode"
+    );
+
+
+    /*
+     * Fullscreen
+     */
+
+    if (
+        document.documentElement
+            .requestFullscreen
+    ) {
+
+        document.documentElement
+            .requestFullscreen();
+
+    }
+
+}
+
+
+/* =================================
+   JAM DIGITAL
+================================= */
+
+function updateClock() {
+
+    const now =
+        new Date();
+
+
+    const date =
+        now.toLocaleDateString(
+            "id-ID",
+            {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            }
+        );
+
+
+    const time =
+        now.toLocaleTimeString(
+            "id-ID",
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            }
+        );
+
+
+    document.getElementById(
+        "clock"
+    ).innerHTML =
+
+        date +
+        " | " +
+        time;
+
+}
+
+
+/* =================================
+   AUTO UPDATE
+================================= */
+
+setInterval(
+    function() {
+
+        updateClock();
+
+        displayRooms();
+
+    },
+    1000
+);
+
+
+/* =================================
+   START PROGRAM
+================================= */
+
+
+updateClock();
+
+displayRooms();
+
+</script>
+
+</body>
+</html>
